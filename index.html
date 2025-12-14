@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imposter Game</title>
+
+<style>
+  body {
+    background: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+  }
+  .card {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 420px;
+    margin: auto;
+  }
+  button {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 15px;
+    cursor: pointer;
+  }
+  .reveal {
+    background: #4caf50;
+    color: #000;
+  }
+  .hidden {
+    display: none;
+  }
+  .role {
+    font-size: 30px;
+    margin-top: 20px;
+  }
+  .word {
+    font-size: 22px;
+    margin-top: 10px;
+    color: #ffd54f;
+  }
+  .countdown {
+    margin-top: 15px;
+    font-size: 20px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card" id="setup">
+  <h2>Imposter Game</h2>
+  <label>Number of Players (3–10)</label><br><br>
+  <input type="number" id="players" min="3" max="10" value="3">
+  <br><br>
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<div class="card hidden" id="game">
+  <h2>Player <span id="playerNum"></span></h2>
+  <button class="reveal" onclick="revealRole()">Reveal Role</button>
+
+  <div id="roleSection" class="hidden">
+    <div class="role" id="roleText"></div>
+    <div class="word" id="wordText"></div>
+    <div class="countdown" id="countdown"></div>
+  </div>
+</div>
+
+<div class="card hidden" id="end">
+  <h2>All roles assigned</h2>
+  <p>Game start 🎭</p>
+</div>
+
+<script>
+let roles = [];
+let currentPlayer = 0;
+let timer;
+let secretWord = "";
+
+/* ---------- NORMAL WORD BANK ---------- */
+const wordBank = [
+  // Food
+  "Pizza","Burger","Pasta","Sushi","Taco","Sandwich","Ice Cream","Donut","Cake","Chocolate",
+  "Fries","Hot Dog","Pancakes","Waffles","Salad","Soup","Steak","Rice","Noodles","Chicken",
+
+  // Places
+  "Airport","School","Beach","Hospital","Mall","Restaurant","Cinema","Gym","Library","Park",
+  "Hotel","Cafe","Office","Stadium","Zoo","Museum","Supermarket","Playground","Theater","Subway",
+
+  // Objects
+  "Phone","Laptop","Camera","Headphones","Watch","Backpack","Wallet","Bottle","Key","Remote",
+  "Chair","Table","Television","Mirror","Clock","Notebook","Pen","Shoes","Jacket","Umbrella",
+
+  // Animals
+  "Dog","Cat","Horse","Lion","Tiger","Elephant","Monkey","Bird","Dolphin","Shark",
+  "Rabbit","Cow","Sheep","Pig","Giraffe","Bear","Wolf","Fox","Penguin","Kangaroo",
+
+  // Jobs
+  "Doctor","Teacher","Police Officer","Chef","Engineer","Pilot","Actor","Singer","Farmer","Driver",
+  "Nurse","Dentist","Lawyer","Cashier","Waiter","Mechanic","Scientist","Photographer","Artist","Coach",
+
+  // Activities
+  "Swimming","Running","Cooking","Dancing","Reading","Gaming","Shopping","Traveling","Hiking","Singing",
+  "Cycling","Drawing","Writing","Cleaning","Driving","Exercising","Studying","Camping","Fishing","Yoga",
+
+  // Media & Entertainment
+  "Movie","TV Show","Song","Podcast","Video Game","Cartoon","Anime","Book","Series","Documentary",
+  "Concert","Festival","Play","Exhibition","Stand-up Comedy","Reality Show","Music Video","Trailer","Album","Radio"
+];
+
+function generateWord() {
+  return wordBank[Math.floor(Math.random() * wordBank.length)];
+}
+/* ------------------------------------ */
+
+function startGame() {
+  const numPlayers = parseInt(document.getElementById("players").value);
+
+  if (numPlayers < 3 || numPlayers > 10) {
+    alert("Players must be between 3 and 10");
+    return;
+  }
+
+  let imposters = 1;
+  if (numPlayers >= 6 && numPlayers <= 8) imposters = 2;
+  if (numPlayers >= 9) imposters = 3;
+
+  roles = [];
+
+  for (let i = 0; i < imposters; i++) roles.push("IMPOSTER");
+  while (roles.length < numPlayers) roles.push("CIVILIAN");
+
+  roles.sort(() => Math.random() - 0.5);
+
+  secretWord = generateWord();
+
+  currentPlayer = 0;
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  updatePlayer();
+}
+
+function updatePlayer() {
+  document.getElementById("playerNum").innerText = currentPlayer + 1;
+  document.getElementById("roleSection").classList.add("hidden");
+}
+
+function revealRole() {
+  document.getElementById("roleSection").classList.remove("hidden");
+
+  if (roles[currentPlayer] === "IMPOSTER") {
+    document.getElementById("roleText").innerText = "IMPOSTER";
+    document.getElementById("wordText").innerText = "(No Word)";
+  } else {
+    document.getElementById("roleText").innerText = "CIVILIAN";
+    document.getElementById("wordText").innerText = secretWord;
+  }
+
+  let timeLeft = 10;
+  document.getElementById("countdown").innerText = `Clearing in ${timeLeft}`;
+
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("countdown").innerText = `Clearing in ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      clearScreen();
+    }
+  }, 1000);
+}
+
+function clearScreen() {
+  document.getElementById("roleSection").classList.add("hidden");
+  currentPlayer++;
+
+  if (currentPlayer >= roles.length) {
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("end").classList.remove("hidden");
+  } else {
+    updatePlayer();
+  }
+}
+</script>
+
+</body>
+</html>

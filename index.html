@@ -1,194 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Imposter Game</title>
+    <title>Be My Valentine 💘</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            color: white;
+        }
 
-<style>
-  body {
-    background: #111;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-    margin: 0;
-  }
-  .card {
-    background: #1e1e1e;
-    border-radius: 12px;
-    padding: 20px;
-    max-width: 420px;
-    margin: auto;
-  }
-  button {
-    padding: 15px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    margin-top: 15px;
-    cursor: pointer;
-  }
-  .reveal {
-    background: #4caf50;
-    color: #000;
-  }
-  .hidden {
-    display: none;
-  }
-  .role {
-    font-size: 30px;
-    margin-top: 20px;
-  }
-  .word {
-    font-size: 22px;
-    margin-top: 10px;
-    color: #ffd54f;
-  }
-  .countdown {
-    margin-top: 15px;
-    font-size: 20px;
-    opacity: 0.8;
-  }
-</style>
+        h1 {
+            margin-top: 100px;
+            font-size: 3em;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px;
+            transition: 0.3s;
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,0,100,0.4);
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #noBtn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #message {
+            font-size: 2.5em;
+            margin-top: 20px;
+            display: none;
+            animation: pop 0.6s ease forwards;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        /* Floating hearts */
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            font-size: 20px;
+            animation: float 6s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card" id="setup">
-  <h2>Imposter Game</h2>
-  <label>Number of Players (3–10)</label><br><br>
-  <input type="number" id="players" min="3" max="10" value="3">
-  <br><br>
-  <button onclick="startGame()">Start Game</button>
-</div>
+    <h1>Will you be my Valentine? 💖</h1>
 
-<div class="card hidden" id="game">
-  <h2>Player <span id="playerNum"></span></h2>
-  <button class="reveal" onclick="revealRole()">Reveal Role</button>
+    <button id="yesBtn" class="btn">Yes 💘</button>
+    <button id="noBtn" class="btn">No 💔</button>
 
-  <div id="roleSection" class="hidden">
-    <div class="role" id="roleText"></div>
-    <div class="word" id="wordText"></div>
-    <div class="countdown" id="countdown"></div>
-  </div>
-</div>
+    <div id="message">YAYYY!!! 🥰💞 You just made me the happiest person ever! 💕</div>
 
-<div class="card hidden" id="end">
-  <h2>All roles assigned</h2>
-  <p>Game start 🎭</p>
-</div>
+    <!-- Background Music -->
+    <audio autoplay loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+    </audio>
 
-<script>
-let roles = [];
-let currentPlayer = 0;
-let timer;
-let secretWord = "";
+    <script>
+        const noBtn = document.getElementById("noBtn");
+        const yesBtn = document.getElementById("yesBtn");
+        const message = document.getElementById("message");
 
-/* ---------- NORMAL WORD BANK ---------- */
-const wordBank = [
-  // Food
-  "Pizza","Burger","Pasta","Sushi","Taco","Sandwich","Ice Cream","Donut","Cake","Chocolate",
-  "Fries","Hot Dog","Pancakes","Waffles","Salad","Soup","Steak","Rice","Noodles","Chicken",
+        let scale = 1;
 
-  // Places
-  "Airport","School","Beach","Hospital","Mall","Restaurant","Cinema","Gym","Library","Park",
-  "Hotel","Cafe","Office","Stadium","Zoo","Museum","Supermarket","Playground","Theater","Subway",
+        noBtn.addEventListener("click", function() {
+            scale -= 0.1;
+            if (scale <= 0.1) {
+                scale = 0.1;
+            }
+            noBtn.style.transform = `scale(${scale})`;
+        });
 
-  // Objects
-  "Phone","Laptop","Camera","Headphones","Watch","Backpack","Wallet","Bottle","Key","Remote",
-  "Chair","Table","Television","Mirror","Clock","Notebook","Pen","Shoes","Jacket","Umbrella",
+        yesBtn.addEventListener("click", function() {
+            message.style.display = "block";
+            yesBtn.style.display = "none";
+            noBtn.style.display = "none";
+        });
 
-  // Animals
-  "Dog","Cat","Horse","Lion","Tiger","Elephant","Monkey","Bird","Dolphin","Shark",
-  "Rabbit","Cow","Sheep","Pig","Giraffe","Bear","Wolf","Fox","Penguin","Kangaroo",
+        // Floating hearts generator
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.innerHTML = "💖";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = Math.random() * 20 + 15 + "px";
+            heart.style.animationDuration = Math.random() * 3 + 3 + "s";
 
-  // Jobs
-  "Doctor","Teacher","Police Officer","Chef","Engineer","Pilot","Actor","Singer","Farmer","Driver",
-  "Nurse","Dentist","Lawyer","Cashier","Waiter","Mechanic","Scientist","Photographer","Artist","Coach",
+            document.body.appendChild(heart);
 
-  // Activities
-  "Swimming","Running","Cooking","Dancing","Reading","Gaming","Shopping","Traveling","Hiking","Singing",
-  "Cycling","Drawing","Writing","Cleaning","Driving","Exercising","Studying","Camping","Fishing","Yoga",
+            setTimeout(() => {
+                heart.remove();
+            }, 6000);
+        }
 
-  // Media & Entertainment
-  "Movie","TV Show","Song","Podcast","Video Game","Cartoon","Anime","Book","Series","Documentary",
-  "Concert","Festival","Play","Exhibition","Stand-up Comedy","Reality Show","Music Video","Trailer","Album","Radio"
-];
-
-function generateWord() {
-  return wordBank[Math.floor(Math.random() * wordBank.length)];
-}
-/* ------------------------------------ */
-
-function startGame() {
-  const numPlayers = parseInt(document.getElementById("players").value);
-
-  if (numPlayers < 3 || numPlayers > 10) {
-    alert("Players must be between 3 and 10");
-    return;
-  }
-
-  let imposters = 1;
-  if (numPlayers >= 6 && numPlayers <= 8) imposters = 2;
-  if (numPlayers >= 9) imposters = 3;
-
-  roles = [];
-
-  for (let i = 0; i < imposters; i++) roles.push("IMPOSTER");
-  while (roles.length < numPlayers) roles.push("CIVILIAN");
-
-  roles.sort(() => Math.random() - 0.5);
-
-  secretWord = generateWord();
-
-  currentPlayer = 0;
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-  updatePlayer();
-}
-
-function updatePlayer() {
-  document.getElementById("playerNum").innerText = currentPlayer + 1;
-  document.getElementById("roleSection").classList.add("hidden");
-}
-
-function revealRole() {
-  document.getElementById("roleSection").classList.remove("hidden");
-
-  if (roles[currentPlayer] === "IMPOSTER") {
-    document.getElementById("roleText").innerText = "IMPOSTER";
-    document.getElementById("wordText").innerText = "(No Word)";
-  } else {
-    document.getElementById("roleText").innerText = "CIVILIAN";
-    document.getElementById("wordText").innerText = secretWord;
-  }
-
-  let timeLeft = 10;
-  document.getElementById("countdown").innerText = `Clearing in ${timeLeft}`;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("countdown").innerText = `Clearing in ${timeLeft}`;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      clearScreen();
-    }
-  }, 1000);
-}
-
-function clearScreen() {
-  document.getElementById("roleSection").classList.add("hidden");
-  currentPlayer++;
-
-  if (currentPlayer >= roles.length) {
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("end").classList.remove("hidden");
-  } else {
-    updatePlayer();
-  }
-}
-</script>
+        setInterval(createHeart, 300);
+    </script>
 
 </body>
-</html>
+</html
